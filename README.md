@@ -1,2 +1,2 @@
 # autoRecon
-personal attempt at scripting initial recon for domain testing. 
+Personal attempt at scripting initial recon for domain testing. 
