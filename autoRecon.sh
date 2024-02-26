@@ -46,7 +46,7 @@ autorecon() {
     done
     python ~/Tools/webscreenshot/webscreenshot.py -o ./$1/$foldername/screenshots/ -i ./$1/$foldername/responsive.txt --timeout=10 -m
     #find endpoints
-    cat ./$1/$foldername/responsive-$(date +"%Y-%m-%d").txt | sort -u | while read line; do
+    cat ./$1/$foldername/responsive.txt | sort -u | while read line; do
         python3 ~/Tools/dirsearch/dirsearch.py -e php,asp,aspx,jsp,html,zip,jar,sql -u $line
         #todo more tools? 
     done
