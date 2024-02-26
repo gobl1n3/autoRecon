@@ -31,7 +31,7 @@ autorecon() {
     #subdomain discovery
     python3 ~/Tools/Sublist3r/sublist3r.py -d $1 -t 5 -v -o ~/$1/$foldername/$1.txt
     curl -s "https://crt.sh?q=$1&output=json" | jq ".[].common_name,.[].name_value"| cut -d'"' -f2 | sed 's/\\n/\n/g' | sed 's/\*.//g'| sed -r 's/([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4})//g' | sort | uniq >> ~/$1/$foldername/$1.txt #credit to https://github.com/az7rb for this fcking parsing jesus christ
-    amass enum -passive -d $1 | uniq >> ~/$1/$foldername/$1.txt
+    amass enum -passive -d $1 | uniq >> ~/$1/$foldername/$1.txt #this still needs parsing
     #todo: add any more tools to this list for discovering subdomains
 
     ~/$1/$foldername/$1.txt | uniq > ~/$1/$foldername/$1.txt
