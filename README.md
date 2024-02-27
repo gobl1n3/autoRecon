@@ -16,3 +16,5 @@ It also assumes the following tools are in your $PATH:
 
 
 Eventually, this will be part of a "Seven Deadly Sins" project. In which this tool is Greed because you want to know everything, Wrath tests out ever possible exploit from greed's output, Sloth tests DoS, etc etc. This idea is not fleshed out yet. I assume given my predisposition to not writing much code this will take significant time. 
+
+You will have to run chmod +x ./autoRecon.sh in order to run this script. 

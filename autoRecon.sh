@@ -1,13 +1,14 @@
 #!/bin/bash
 header(){
     echo "
-    ______     __  __     ______   ______     ______     ______     ______     ______     __   __    
+     ______     __  __     ______   ______     ______     ______     ______     ______     __   __    
     /\  __ \   /\ \/\ \   /\__  _\ /\  __ \   /\  == \   /\  ___\   /\  ___\   /\  __ \   /\ \-.\ .\   
     \ \  __ \  \ \ \_\ \  \/_/\ \/ \ \ \/\ \  \ \  __<   \ \  __\   \ \ \____  \ \ \/\ \  \ \ \-.\ .\  
      \ \_\ \_\  \ \_____\    \ \_\  \ \_____\  \ \_\ \_\  \ \_____\  \ \_____\  \ \_____\  \ \_\  \ .\ 
-      \/_/\/_/   \/_____/     \/_/   \/_____/   \/_/ /_/   \/_____/   \/_____/   \/_____/   \/_/  \/_/ 
+      \/_/\/_/   \/_____/     \/_/   \/_____/   \/_/ /_/   \/_____/   \/_____/   \/_____/   \/_/ \/__/ 
                                                                                                     
-    tool by gobl1n"
+                                    tool by gobl1n. Omnis Vir Lupus.
+    "
 }
 
 main(){
@@ -21,7 +22,7 @@ main(){
     fi
     mkdir ./$1/$foldername
     mkdir ./$1/$foldername/screenshots/
-    touch ./$1/$foldername/unreachable.html
+    touch ./$1/$foldername/unreachable.txt
     touch ./$1/$foldername/responsive.txt
     touch ./$1/$foldername/dirs.txt
 
@@ -35,33 +36,44 @@ autorecon() {
     amass enum -passive -d $1 | uniq >> ~/$1/$foldername/$1.txt #this still needs parsing
     #todo: add any more tools to this list for discovering subdomains
 
-    ~/$1/$foldername/$1.txt | uniq > ~/$1/$foldername/$1.txt
+    sort -u ~/$1/$foldername/$1.txt
     #begin finding endpoints which respond from the subdomains, screenshot when available
-     cat ./$1/$foldername/$1.txt | sort -u | while read line; do
+    cat ./$1/$foldername/$1.txt | sort -u | while read line; do
     if [ $(curl --write-out %{http_code} --silent --output /dev/null -m 5 $line) = 000 ]
         then
-        echo $line >> ./$1/$foldername/unreachable.html
+        echo $line >> ./$1/$foldername/unreachable.txt
         else
         echo $line >> ./$1/$foldername/responsive.txt
         fi
     done
     python ~/Tools/webscreenshot/webscreenshot.py -o ./$1/$foldername/screenshots/ -i ./$1/$foldername/responsive.txt --timeout=10 -m
-    #find endpoints
+    
     cat ./$1/$foldername/responsive.txt | sort -u | while read line; do
-        python3 ~/Tools/dirsearch/dirsearch.py -e php,asp,aspx,jsp,html,zip,jar,sql -u $line --plain-text-report=$1/$foldername/dirs.txt
-        #todo more tools? 
+        python3 ~/Tools/dirsearch/dirsearch.py -e php,asp,aspx,jsp,html,zip,jar,sql -u $line --max-rate=5 | tee -a ./$1/$foldername/dirs.txt
+        #todo more tools? also choose different wordlist? not sure how good the default is. We required SecLists, may as well use. 
     done
-    #arjun each response from dirsearch
+    
     touch ./$1/$foldername/arjun.txt
     cat ./$1/$foldername/dirs.txt | sort -u | while read line; do
-        arjun -u http://$line | uniq >> arjun.txt #maybe rework this line a bit
-    #todo what to do with output? i stole enough of this from https://github.com/jhaddix/lazyrecon/, I'm not stealing his report as well
+        arjun -u http://$line | tee -a ./$1/$foldername/arjun.txt 
+    
     #tempoutput
     cat ./$1/$foldername/arjun.txt
 
     #TODO: Final thing to implement: some form of notification service for the scan ending, since 
-    #this can likely take a significant amount of time overall. Email? Discord webhook? TBD
-    #Note: maybe write a method for each so either can be implemented as desired
+    #this can likely take a significant amount of time overall. Email? Discord webhook? 
+
+    #email()
+    #discordAlert()
+}
+
+email() {
+ #TODO, maybe permanently
+}
+
+discordAlert() {
+    url="your discord webhook" 
+    curl -H "Content-Type: application/json" -X POST '{"content": "Scan complete."}' $url
 }
 
 if [[ -z $@ ]]; then
